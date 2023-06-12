@@ -78,12 +78,12 @@ func NewDeviceDetector(dir string) (*DeviceDetector, error) {
 	deviceDir := filepath.Join(dir, "device")
 	d.deviceParsers = device.NewDeviceParsers(deviceDir,
 		[]string{
-			device.ParserNameHbbTv,
 			device.ParserNameConsole,
 			device.ParserNameCar,
 			device.ParserNameCamera,
 			device.ParserNamePortableMediaPlayer,
 			device.ParserNameMobile,
+			device.ParserNameHbbTv,
 		})
 
 	d.botParsers = []BotParser{
