@@ -2,6 +2,7 @@ package client
 
 import (
 	"path/filepath"
+	"sync"
 
 	gover "github.com/mcuadros/go-version"
 
@@ -277,20 +278,20 @@ var availableBrowsers = map[string]string{
 
 // Browser families mapped to the short codes of the associated browsers
 var browserFamilies = map[string][]string{
-	`Android Browser`    : []string{`AN`, `MU`},
-	`BlackBerry Browser` : []string{`BB`},
-	`Baidu`              : []string{`BD`, `BS`},
-	`Amiga`              : []string{`AV`, `AW`},
-	`Chrome`             : []string{`CH`, `BA`, `BR`, `CC`, `CD`, `CM`, `CI`, `CF`, `CN`, `CR`, `CP`, `DD`, `IR`, `RM`, `AO`, `TS`, `VI`, `PT`, `AS`, `TB`, `AD`, `SB`, `WP`, `I3`, `CV`, `WH`, `SZ`, `QW`, `LF`, `KW`, `2B`, `CE`, `EC`, `MT`, `MS`, `HA`, `OC`, `MZ`, `BM`, `KN`, `SW`, `M1`, `FA`, `TA`, `AH`, `CL`, `SU`, `EU`, `UB`, `LO`, `VG`, `TV`, `A0`, `1B`, `S4`, `EE`, `AE`, `VM`, `O0`, `TG`, `GB`, `SY`, `HH`, `YJ`, `LL`, `TU`, `XV`, `C2`},
-	`Firefox`            : []string{`FF`, `FE`, `FM`, `SX`, `FB`, `PX`, `MB`, `EI`, `WF`, `CU`, `TF`, `QM`, `FR`, `I4`, `GZ`, `MO`, `F1`, `BI`, `MN`, `BH`, `TO`, `OS`, `MY`, `FY`, `AX`, `C0`, `LH`, `S5`},
-	`Internet Explorer`  : []string{`IE`, `IM`, `PS`},
-	`Konqueror`          : []string{`KO`},
-	`NetFront`           : []string{`NF`},
-	`NetSurf`            : []string{`NE`},
-	`Nokia Browser`      : []string{`NB`, `NO`, `NV`, `DO`},
-	`Opera`              : []string{`OP`, `OM`, `OI`, `ON`, `OO`, `OG`, `OH`, `O1`, `OX`},
-	`Safari`             : []string{`SF`, `MF`, `SO`},
-	`Sailfish Browser`   : []string{`SA`},
+	`Android Browser`:    []string{`AN`, `MU`},
+	`BlackBerry Browser`: []string{`BB`},
+	`Baidu`:              []string{`BD`, `BS`},
+	`Amiga`:              []string{`AV`, `AW`},
+	`Chrome`:             []string{`CH`, `BA`, `BR`, `CC`, `CD`, `CM`, `CI`, `CF`, `CN`, `CR`, `CP`, `DD`, `IR`, `RM`, `AO`, `TS`, `VI`, `PT`, `AS`, `TB`, `AD`, `SB`, `WP`, `I3`, `CV`, `WH`, `SZ`, `QW`, `LF`, `KW`, `2B`, `CE`, `EC`, `MT`, `MS`, `HA`, `OC`, `MZ`, `BM`, `KN`, `SW`, `M1`, `FA`, `TA`, `AH`, `CL`, `SU`, `EU`, `UB`, `LO`, `VG`, `TV`, `A0`, `1B`, `S4`, `EE`, `AE`, `VM`, `O0`, `TG`, `GB`, `SY`, `HH`, `YJ`, `LL`, `TU`, `XV`, `C2`},
+	`Firefox`:            []string{`FF`, `FE`, `FM`, `SX`, `FB`, `PX`, `MB`, `EI`, `WF`, `CU`, `TF`, `QM`, `FR`, `I4`, `GZ`, `MO`, `F1`, `BI`, `MN`, `BH`, `TO`, `OS`, `MY`, `FY`, `AX`, `C0`, `LH`, `S5`},
+	`Internet Explorer`:  []string{`IE`, `IM`, `PS`},
+	`Konqueror`:          []string{`KO`},
+	`NetFront`:           []string{`NF`},
+	`NetSurf`:            []string{`NE`},
+	`Nokia Browser`:      []string{`NB`, `NO`, `NV`, `DO`},
+	`Opera`:              []string{`OP`, `OM`, `OI`, `ON`, `OO`, `OG`, `OH`, `O1`, `OX`},
+	`Safari`:             []string{`SF`, `MF`, `SO`},
+	`Sailfish Browser`:   []string{`SA`},
 }
 
 // Browsers that are available for mobile devices only
@@ -336,9 +337,9 @@ type BrowserItem struct {
 
 //  Client parser for browser detection
 type Browser struct {
-	Regexes      []*BrowserItem
-	engine       BrowserEngine
-	verCache     map[string]*Version
+	Regexes  []*BrowserItem
+	engine   BrowserEngine
+	verCache sync.Map
 }
 
 const ParserNameBrowser = `browser`
@@ -361,7 +362,7 @@ func NewBrowser(fileName string) *Browser {
 }
 
 func (b *Browser) Load(file string) error {
-	b.verCache = make(map[string]*Version)
+	b.verCache = sync.Map{}
 	var v []*BrowserItem
 	err := ReadYamlFile(file, &v)
 	if err != nil {
@@ -383,7 +384,7 @@ func (b *Browser) PreMatch(ua string) bool {
 func (b *Browser) Parse(ua string) *BrowserMatchResult {
 	for _, regex := range b.Regexes {
 		matches := regex.MatchUserAgent(ua)
-		if len(matches) > 0{
+		if len(matches) > 0 {
 			name := BuildByMatch(regex.Name, matches)
 			for browserShort, browserName := range availableBrowsers {
 				if StringEqualIgnoreCase(name, browserName) {
@@ -427,11 +428,12 @@ func (b *Browser) BuildEngineVersion(engine, ua string) string {
 	if engine == "" {
 		return ""
 	}
-	v, ok := b.verCache[engine]
+	v, ok := b.verCache.Load(engine)
 	if !ok {
 		v = &Version{Engine: engine}
-		v.Compile()
-		b.verCache[engine] = v
+		v.(*Version).Compile()
+		b.verCache.Store(engine, v)
 	}
-	return v.Parse(ua)
+
+	return v.(*Version).Parse(ua)
 }
