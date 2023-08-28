@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	. "github.com/muxinc/devicedetector/parser"
+	. "github.com/hxgdzyuyi/devicedetector/parser"
 	"gotest.tools/assert"
 )
 

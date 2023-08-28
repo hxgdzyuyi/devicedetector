@@ -3,7 +3,7 @@ package device
 import (
 	"path/filepath"
 
-	. "github.com/muxinc/devicedetector/parser"
+	. "github.com/hxgdzyuyi/devicedetector/parser"
 )
 
 const ParserNameHbbTv = `tv`

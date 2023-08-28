@@ -3,7 +3,7 @@ package client
 import (
 	"path/filepath"
 
-	. "github.com/muxinc/devicedetector/parser"
+	. "github.com/hxgdzyuyi/devicedetector/parser"
 )
 
 // Known browser engines mapped to their internal short codes

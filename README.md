@@ -12,7 +12,7 @@ Installation
 The recommended way to install device detector
 
 ```
-go get github.com/muxinc/devicedetector
+go get github.com/hxgdzyuyi/devicedetector
 ```
 
 Examples
@@ -25,7 +25,7 @@ import (
 	"fmt"
 	"log"
 
-	. "github.com/muxinc/devicedetector"
+	. "github.com/hxgdzyuyi/devicedetector"
 )
 
 func main() {
@@ -96,7 +96,7 @@ There are already a few ports of this tool to other languages:
 - **Crystal** https://github.com/creadone/device_detector
 - **Elixir** https://github.com/elixir-inspector/ua_inspector
 - **Java** https://github.com/mngsk/device-detector
-- **Go** https://github.com/muxinc/devicedetector
+- **Go** https://github.com/hxgdzyuyi/devicedetector
 
 
 ## What Device Detector is able to detect

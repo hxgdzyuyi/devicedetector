@@ -4,7 +4,7 @@ import (
 	"sort"
 	"strings"
 
-	. "github.com/muxinc/devicedetector/parser"
+	. "github.com/hxgdzyuyi/devicedetector/parser"
 )
 
 type ClientMatchResult struct {

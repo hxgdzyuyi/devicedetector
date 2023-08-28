@@ -1,7 +1,7 @@
 package device
 
 import(
-	. "github.com/muxinc/devicedetector/parser"
+	. "github.com/hxgdzyuyi/devicedetector/parser"
 )
 
 const dir = "../../regexes/device"
